@@ -15,7 +15,7 @@ import sqlite3
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware, 
-    allow_origins=["*"], 
+    allow_origins=["https://aura-ai-mu-black.vercel.app/"], 
     allow_credentials=True, 
     allow_methods=["*"], 
     allow_headers=["*"]
