@@ -19,7 +19,7 @@ export default function Dashboard() {
           setUserName('there');
         }
 
-        const response = await fetch(`http://localhost:8080/api/journals/${userId}`);
+        const response = await fetch(`https://aura-backend-982983046376.us-west1.run.app/api/journals/${userId}`);
         if (response.ok) {
           const data = await response.json();
           setJournals(data);

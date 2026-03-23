@@ -29,7 +29,7 @@ export default function Auth({ setUser }) {
       : { fullname, email, password };
 
     try {
-      const res = await fetch(`http://127.0.0.1:8000${endpoint}`, {
+      const res = await fetch(`https://aura-backend-982983046376.us-west1.run.app${endpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)

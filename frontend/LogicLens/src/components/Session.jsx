@@ -29,7 +29,8 @@ export default function Session() {
 
   // 1. Establish WebSocket Connection
   useEffect(() => {
-    wsRef.current = new WebSocket('ws://127.0.0.1:8000/ws/session');
+    const BACKEND_URL = "wss://aura-backend-982983046376.us-west1.run.app/ws/session" 
+    wsRef.current = new WebSocket(BACKEND_URL);
     
     wsRef.current.onopen = () => {
       console.log('Connected to Aura Backend');
