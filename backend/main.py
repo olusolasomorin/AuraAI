@@ -14,11 +14,17 @@ import sqlite3
 
 app = FastAPI()
 app.add_middleware(
-    CORSMiddleware, 
-    allow_origins=["https://aura-ai-mu-black.vercel.app/"], 
-    allow_credentials=True, 
-    allow_methods=["*"], 
-    allow_headers=["*"]
+    CORSMiddleware,
+    allow_origins=[
+        "https://aura-ai-mu-black.vercel.app/",
+        "https://aura-ai-mu-black.vercel.app",
+        "http://localhost:3000",                
+        "http://localhost:5173",                
+        "http://127.0.0.1:8000"
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
