@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Book, Heart, Calendar, Wind, Activity, Brain, ChevronRight, Sparkles } from 'lucide-react';
+import { Book, Heart, Calendar, Wind, Activity, Brain, ChevronRight, Sparkles, X } from 'lucide-react';
 
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState('journals');
   const [journals, setJournals] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [userName, setUserName] = useState('');
+  
+  // 🛠️ NEW: State for the modal
+  const [selectedJournal, setSelectedJournal] = useState(null); 
 
   useEffect(() => {
     const fetchJournals = async () => {
@@ -25,7 +28,6 @@ export default function Dashboard() {
           const data = await response.json();
           setJournals(data);
         } else {
-          // 🛠️ NEW: Catch the silent failure!
           console.error("Backend refused to send journals. Status:", response.status);
           alert("Could not load your journals. Please check the console.");
         }
@@ -46,12 +48,10 @@ export default function Dashboard() {
   ];
 
   return (
-    // 🛠️ UPDATED: Responsive padding
     <div className="w-full max-w-6xl mx-auto p-4 sm:p-6 md:p-8 flex flex-col h-full overflow-y-auto">
       
       {/* Dashboard Header */}
       <div className="mb-6 md:mb-10">
-        {/* 🛠️ UPDATED: Responsive text sizing */}
         <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-2 flex items-center gap-3">
           Welcome back, {userName} <Sparkles className="text-purple-400" size={24} />
         </h1>
@@ -59,7 +59,6 @@ export default function Dashboard() {
       </div>
 
       {/* Tab Navigation */}
-      {/* 🛠️ UPDATED: overflow-x-auto allows tabs to scroll horizontally on very narrow phones without breaking UI */}
       <div className="flex space-x-6 border-b border-gray-800 mb-6 md:mb-8 overflow-x-auto scrollbar-hide">
         <button 
           onClick={() => setActiveTab('journals')}
@@ -119,7 +118,11 @@ export default function Dashboard() {
                     <p className="text-sm sm:text-base text-gray-300 leading-relaxed line-clamp-4 flex-1">
                       {journal.summary}
                     </p>
-                    <button className="mt-4 sm:mt-6 flex items-center gap-1 sm:gap-2 text-xs sm:text-sm text-purple-400 font-semibold group-hover:text-purple-300 transition-colors">
+                    {/* 🛠️ UPDATED: Button now triggers the modal */}
+                    <button 
+                      onClick={() => setSelectedJournal(journal)}
+                      className="mt-4 sm:mt-6 flex items-center gap-1 sm:gap-2 text-xs sm:text-sm text-purple-400 font-semibold group-hover:text-purple-300 transition-colors"
+                    >
                       Read Full Entry <ChevronRight size={14} className="sm:w-[16px] sm:h-[16px]" />
                     </button>
                   </div>
@@ -134,7 +137,6 @@ export default function Dashboard() {
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
               {copingStrategies.map((strategy, index) => (
-                /* 🛠️ UPDATED: Stack icon and text on mobile, put side-by-side on larger screens */
                 <div key={index} className="bg-gray-900 border border-gray-800 rounded-2xl p-5 sm:p-6 flex flex-col sm:flex-row gap-4 sm:gap-6 items-start hover:bg-gray-800/50 transition-colors">
                   <div className="p-3 sm:p-4 bg-gray-950 rounded-xl border border-gray-800 shadow-inner shrink-0">
                     {strategy.icon}
@@ -152,7 +154,6 @@ export default function Dashboard() {
               ))}
             </div>
             
-            {/* 🛠️ UPDATED: Call to action block flex-col on mobile, flex-row on desktop */}
             <div className="mt-8 sm:mt-10 p-6 sm:p-8 bg-linear-to-br from-purple-900/40 to-blue-900/40 border border-purple-500/30 rounded-3xl flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
               <div>
                 <h3 className="text-xl sm:text-2xl font-bold text-white mb-2">Need immediate support?</h3>
@@ -169,6 +170,46 @@ export default function Dashboard() {
         )}
 
       </div>
+
+      {/* 🛠️ NEW: FULL JOURNAL MODAL */}
+      {selectedJournal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-gray-900 border border-gray-800 rounded-2xl sm:rounded-3xl p-6 sm:p-8 w-full max-w-2xl shadow-2xl relative animate-in zoom-in-95 duration-200 max-h-[90vh] flex flex-col">
+            
+            {/* Close Button */}
+            <button
+              onClick={() => setSelectedJournal(null)}
+              className="absolute top-4 right-4 p-2 text-gray-500 hover:text-white bg-gray-800/50 hover:bg-gray-800 rounded-full transition-colors"
+            >
+              <X size={20} />
+            </button>
+
+            {/* Modal Header (Date & Mood) */}
+            <div className="flex justify-between items-center mb-6 pr-8 border-b border-gray-800 pb-4">
+              <div className="flex items-center gap-2 text-gray-400 text-sm font-medium">
+                <Calendar size={16} />
+                {selectedJournal.date}
+              </div>
+              <span className={`px-3 py-1 rounded-full text-xs font-bold border ${
+                selectedJournal.mood === 'Calm' || selectedJournal.mood === 'Relieved' ? 'bg-green-950/30 text-green-400 border-green-800/50' :
+                selectedJournal.mood === 'Anxious' || selectedJournal.mood === 'Stressed' ? 'bg-orange-950/30 text-orange-400 border-orange-800/50' :
+                'bg-blue-950/30 text-blue-400 border-blue-800/50'
+              }`}>
+                {selectedJournal.mood}
+              </span>
+            </div>
+
+            {/* Modal Body (Full Text) */}
+            <div className="overflow-y-auto pr-2 custom-scrollbar">
+              <p className="text-gray-300 text-base sm:text-lg leading-relaxed whitespace-pre-wrap">
+                {selectedJournal.summary}
+              </p>
+            </div>
+            
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
