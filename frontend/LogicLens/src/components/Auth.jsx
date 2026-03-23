@@ -96,7 +96,7 @@ export default function Auth({ setUser }) {
         {!isLogin && (
           <input 
             type="text" 
-            placeholder="Full Name (e.g., Olusola Somorin)" 
+            placeholder="Full Name" 
             required 
             disabled={isLoading}
             className="w-full p-3.5 rounded-xl bg-gray-800 text-white focus:ring-2 focus:ring-purple-500 outline-none disabled:opacity-50 transition-all" 
