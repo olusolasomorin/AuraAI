@@ -138,5 +138,18 @@ class GeminiLiveSession:
         except websockets.exceptions.ConnectionClosed:
             print("WebSocket closed.")
 
+
+    async def request_journal_summary(self):
+        msg = {
+            "clientContent": {
+                "turns": [{
+                    "role": "user",
+                    "parts": [{"text": "SYSTEM COMMAND: The user has ended the session. You MUST immediately execute the `save_journal_entry` tool right now to summarize the conversation. Do NOT generate any spoken audio or text response. ONLY use the tool."}]
+                }],
+                "turnComplete": True
+            }
+        }
+        await self.ws.send(json.dumps(msg))
+
     async def close(self):
         if self.ws: await self.ws.close()

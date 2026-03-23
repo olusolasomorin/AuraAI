@@ -276,6 +276,13 @@ export default function Session() {
         user_id: storedUser?.user_id || 1 
       }));
     }
+
+    setTimeout(() => {
+      if (wsRef.current) {
+        wsRef.current.close();
+      }
+      navigate('/dashboard');
+    }, 6000);
   };
 
   return (
