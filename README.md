@@ -1,123 +1,108 @@
-# LogicLens 🧠📷
+# 🧠 Aura AI - Multimodal Emotional Companion
 
-> **A real-time, multimodal AI math tutor that sees your notebook and talks with you, using Socratic guidance to teach step-by-step instead of just giving the answer.**
+Aura AI is a real-time, multimodal emotional companion and journaling platform built for the **Reanest Hackathon**. 
 
-LogicLens bridges the gap between pure educational pedagogy and generative AI. Powered by the Gemini Live API, it acts as a human-like tutor named **Lora**. Loraa doesn't just act like a calculator; she actively observes your handwritten equations through your camera, reads your facial expressions, and asks guiding questions to help you reach that "aha!" moment yourself.
+In high-pressure environments, the hardest challenge isn't always the workload—it’s managing the mental toll and finding a safe space to decompress. Aura AI serves as a "digital first-aid kit for the mind," leveraging real-time voice and video processing to provide empathetic, conversational support and automated emotional tracking.
+
+---
+
+## 🚨 Important Note for Hackathon Judges (Live Demo)
+This project is deployed using a serverless architecture on Google Cloud Run with an SQLite database. Because serverless containers spin down when idle, **the database resets periodically**. 
+
+**When testing the live URL, please click "Sign Up" to create a fresh test account.** Previously created accounts may not persist between sessions due to the ephemeral nature of the cloud environment.
+
+
+## 🌐 How to Use the Live App (For Judges)
+Live Demo Link: Already provided in the submission form
+
+**Step 1:** Create a Fresh Account
+Because the cloud database resets periodically, please click Sign Up on the login page to create a new test account. You can use any dummy name, email, and password.
+
+**Step 2:** Explore the Dashboard
+Once logged in, you will land on your personal dashboard. Here you can toggle between your Session Journals (which will be empty at first) and a library of Coping Strategies designed for immediate grounding.
+
+**Step 3:** Start a Live AI Session
+Click the "Start AI Session" button.
+
+Note: Your browser will ask for Microphone and Camera permissions. These are required for the Gemini Live API to process your voice and facial expressions. No audio or video data is recorded or stored.
+
+**Step 4:** Talk to Aura
+Once the interface loads, just start talking!
+
+Speak naturally about your day, or anything bothering you.
+
+You can toggle your microphone or switch your camera view using the on-screen controls.
+
+Emergency Protocol Test: If you want to test the safety guardrails, mention feeling in severe danger or distress. Aura will instantly trigger the Emergency Resources modal.
+
+**Step 5:** End the Session (The Magic Part)
+When you are done talking, click the red End Session (Power) button.
+
+Do not refresh the page. * Wait about 5-6 seconds. In the background, Aura is silently executing a tool to summarize your entire conversation and assess your mood.
+
+You will be automatically redirected back to your dashboard once the AI finishes writing your journal.
+
+**Step 6:** Read Your Journal
+Back on the dashboard, you will see your newly generated session card complete with a date and mood tag. Click "Read Full Entry" to open the sleek modal and read the clinical summary Aura wrote for you!
+
+---
 
 ## ✨ Key Features
-* **Real-Time Multimodal Streaming:** Continuous bi-directional video and audio streaming via native WebSockets.
-* **Socratic Teaching Engine:** Strictly prompted to guide students step-by-step rather than outputting the final answer.
-* **Smart Frame Downscaling:** A custom Canvas API interceptor that dynamically shrinks 4K smartphone camera frames to 640px, preventing backend memory crashes.
-* **Voice Activity Detection (VAD):** A custom browser `AudioWorklet` that monitors microphone input to smoothly handle human-AI interruptions.
-* **Backend Python Calculator:** Because LLMs can hallucinate arithmetic, Lora is equipped with a secure Python function-calling tool. She intercepts complex math, evaluates it perfectly on the server, and speaks the accurate result.
-* **Mobile-Safe Camera Switching:** A "Nuke and Rebuild" hardware toggle that safely swaps between front and rear lenses without triggering Android OS abort errors.
 
-## 🏗️ Architecture
+* 🎙️ **Real-Time Active Listening:** Built using the Google Gemini Live API via bi-directional WebSockets, Aura processes voice and facial expressions in real-time to provide conversational, empathetic support.
+* 📝 **Zero-Click Automated Journaling:** When a session ends, the AI silently executes a background tool to generate a clinical summary and mood analysis of the conversation, instantly saving it to the user's dashboard.
+* 🌬️ **Coping Strategies Library:** A built-in UI toolkit of grounding exercises (like 4-7-8 breathing and Cognitive Behavioral Therapy reframing) right at the user’s fingertips.
+* 🏥 **Emergency Safety Protocol:** A custom-engineered safety guardrail. If the AI detects signs of severe distress or self-harm, it triggers a system override to instantly push local mental health crisis hotlines to the user's screen.
 
-```mermaid
-graph TD
-    subgraph "Tier 1: Client (React)"
-        A[User Camera & Mic] --> B(MediaDevices API)
-        B --> C{Canvas API Downscaler<br>Shrinks 4K to 640px}
-        B --> D{AudioWorklet<br>Voice Activity Detection}
-        C --> E[WebSocket Client]
-        D --> E
-    end
+---
 
-    subgraph "Tier 2: Backend (FastAPI)"
-        E <-->|wss:// Base64 Video & PCM Audio| F(FastAPI WebSocket Endpoint)
-        F <--> G[Gemini Client Manager]
-        G --> H{Python Calculator Tool<br>eval math}
-        H --> G
-    end
+## 🛠️ Tech Stack
 
-    subgraph "Tier 3: AI Engine (Google Cloud)"
-        G <-->|BidiGenerateContent API| I((Gemini 2.5 Flash<br>Native Audio))
-        I -.->|1. toolCall JSON| H
-        H -.->|2. toolResponse JSON| I
-    end
+**Frontend (Deployed on Vercel):**
+* React.js (Vite)
+* Tailwind CSS (Styling & Animations)
+* Lucide React (Icons)
+* React Router (SPA Navigation)
 
-    classDef frontend fill:#0f172a,stroke:#3b82f6,stroke-width:2px,color:#fff;
-    classDef backend fill:#052e16,stroke:#22c55e,stroke-width:2px,color:#fff;
-    classDef ai fill:#4c1d95,stroke:#a855f7,stroke-width:2px,color:#fff;
-    
-    class A,B,C,D,E frontend;
-    class F,G,H backend;
-    class I ai;
+**Backend (Deployed on Google Cloud Run):**
+* FastAPI (Python)
+* Google GenAI SDK (Gemini 2.5 Flash Native Audio Preview)
+* WebSockets (Real-time audio/video streaming)
+* SQLite (Database)
+
+---
+
+## ⚙️ How the Architecture Works
+
+1.  **The Live Connection:** The React frontend captures raw PCM audio and video frames using the browser's MediaDevices API and sends them over a secure WebSocket (`wss://`) to the FastAPI backend.
+2.  **The AI Stream:** FastAPI acts as a bridge, instantly forwarding the media chunks to Google's Gemini Live API. Gemini streams audio responses back down the pipe, which the React app decodes and plays using the Web Audio API.
+3.  **The Automated Journal:** When the user clicks "End Session", the frontend sends a silent `end_session` trigger. The backend intercepts this, forces the AI to execute a `save_journal_entry` function call using the context of the live conversation, saves the output to SQLite, and signals the frontend to route the user to their updated dashboard.
+
+---
+
+## 🚀 Running the Project Locally
+
+If you wish to run the code on your local machine:
+
+### 1. Clone the repository
+```bash
+git clone [https://github.com/YOUR_GITHUB_USERNAME/aura-ai.git](https://github.com/YOUR_GITHUB_USERNAME/aura-ai.git)
+cd aura-ai
 ```
+### 2. Setup the backend
+cd backend
+python -m venv virtual_env
+source virtual_env/Scripts/activate  # (Windows: virtual_env\Scripts\activate)
+pip install -r requirements.txt
 
-## 🚀 How to Use LogicLens
+**Create a .env file in the backend directory and add your Gemini API Key:**
+GEMINI_API_KEY=your_api_key_here
 
-LogicLens is fully deployed and accessible directly in your web browser. No local installation or downloading is required!
+**Run the FastAPI server:**
+uvicorn main:app --reload --port 8000
 
-### 1. Access the Live App
-Visit the application here: **https://logiclens-omega.vercel.app/**
-
-### 2. Grant Permissions
-When prompted by your browser, **Allow** access to your camera and microphone. LogicLens requires these to see your math problems and hear your questions in real-time. All processing is handled securely, and streams are not recorded.
-
-### 3. Start the Session
-Click the **Start Session** button on the home screen. The interactive split-screen UI will load, showing your camera feed on top and Lora's AI avatar on the bottom.
-
-### 4. Interact with Lora
-* **Ask a Question:** Simply start speaking naturally. Try saying, *"Hi Lora, I need help factoring a quadratic equation."*
-* **Show Your Work:** Write a math problem in dark marker on a piece of paper and hold it up to the camera.
-* **Switch Cameras:** Tap the **Switch Camera** icon (top right of your video feed) to seamlessly flip to your phone's rear camera and point it down at your notebook or desk.
-* **Mute Microphone:** Need a moment to think? Tap the **You / Muted** badge (top left of your video feed) to temporarily pause your microphone without disconnecting the session. Tap it again to resume speaking.
-* **End Session:** When you are done learning, tap the red **Power** button below Lora's avatar to safely close the connection and turn off your camera.
-
-## 🚀 Installation & Local Setup
-To run LogicLens locally on your machine, you will need to start both the Python backend and the React frontend.
-
-### Prerequisites
-Node.js installed
-
-Python 3.9+ installed
-
-A Google Gemini API Key from Google AI Studio
-
-**1. Backend Setup**
-Open a terminal and navigate to your backend folder:
-#### Clone the repository
-git clone [https://github.com/olusolasomorin/LogicLens.git](https://github.com/olusolasomorin/LogicLens.git)
-
-cd LogicLens/backend
-
-#### Create a virtual environment
-python -m venv venv
-
-#### Activate the virtual environment
-**On Windows:**
-venv\Scripts\activate
-**On Mac/Linux:**
-source venv/bin/activate
-
-#### Install the required dependencies
-pip install fastapi uvicorn websockets python-dotenv
-
-#### Create a .env file in the root of your backend folder and add your Gemini API key:
-GEMINI_API_KEY=your_gemini_api_key_here
-
-#### Start the FastAPI server:
-uvicorn main:app --host 0.0.0.0 --port 8080 --reload
-
-**2. Frontend Setup**
-Open a new terminal window and navigate to your frontend folder:
-cd LogicLens/frontend
-
-#### Install dependencies
+### 3. Setup the Frontend
+**Open a new terminal window:**
+cd frontend
 npm install
-
-*Important:* If running locally, open src/App.jsx and change the BACKEND_URL variable inside the useEffect hook to point to your local Python server:
-
-const BACKEND_URL = 'ws://localhost:8080/ws/tutor';
-
-#### Start the React development server:
 npm run dev
-
-**3. Start Learning**
-Open your browser to the local React address (usually http://localhost:5173).
-
-Grant camera and microphone permissions.
-
-Click Start Session, hold up a math problem, and say "Hi Lora!"
