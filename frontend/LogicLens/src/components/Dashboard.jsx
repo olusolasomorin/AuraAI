@@ -20,9 +20,14 @@ export default function Dashboard() {
         }
 
         const response = await fetch(`https://aura-backend-982983046376.us-west1.run.app/api/journals/${userId}`);
+        
         if (response.ok) {
           const data = await response.json();
           setJournals(data);
+        } else {
+          // 🛠️ NEW: Catch the silent failure!
+          console.error("Backend refused to send journals. Status:", response.status);
+          alert("Could not load your journals. Please check the console.");
         }
       } catch (error) {
         console.error("Failed to fetch journals", error);

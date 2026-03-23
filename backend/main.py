@@ -50,6 +50,10 @@ class UserLogin(BaseModel):
     email: str
     password: str
 
+@app.get("/")
+def root():
+    return {"status": "AuraAI backend Live"}
+
 @app.post("/api/signup")
 def signup(user: User):
     conn = sqlite3.connect("app.db")
@@ -199,6 +203,21 @@ def generate_and_save_journal(request: JournalRequest):
     except Exception as e:
         print(f"Error generating journal: {e}")
         raise HTTPException(status_code=500, detail="Failed to generate journal summary")
+
+
+@app.get("/api/journals/{user_id}")
+def get_user_journals(user_id: int):
+    conn = sqlite3.connect("app.db")
+    # This row_factory line makes SQLite return dictionaries instead of raw tuples
+    conn.row_factory = sqlite3.Row 
+    
+    # Fetch all journals for this specific user, newest first
+    cursor = conn.execute("SELECT * FROM journals WHERE user_id = ? ORDER BY id DESC", (user_id,))
+    rows = cursor.fetchall()
+    conn.close()
+    
+    # Convert the rows to a list of dictionaries and send to React
+    return [dict(row) for row in rows]
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8080))
