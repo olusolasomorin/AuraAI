@@ -90,19 +90,27 @@ git clone [https://github.com/YOUR_GITHUB_USERNAME/aura-ai.git](https://github.c
 cd aura-ai
 ```
 ### 2. Setup the backend
+```bash
 cd backend
 python -m venv virtual_env
 source virtual_env/Scripts/activate  # (Windows: virtual_env\Scripts\activate)
 pip install -r requirements.txt
+```
 
 **Create a .env file in the backend directory and add your Gemini API Key:**
+```bash
 GEMINI_API_KEY=your_api_key_here
+```
 
 **Run the FastAPI server:**
+```bash
 uvicorn main:app --reload --port 8000
+```
 
 ### 3. Setup the Frontend
 **Open a new terminal window:**
+```bash
 cd frontend
 npm install
 npm run dev
+```
